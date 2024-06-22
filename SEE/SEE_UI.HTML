@@ -192,7 +192,9 @@
   </div>
 
   <div class="subscribe-button">
-    <button onclick="subscribe()">Subscribe to Essentials Cart</button>
+    <button onclick="subscribe()">Subscribe to Essentials Cart</button> </br></br>
+    <button id="pauseButton" class="active" onclick="pause()">Pause Subscription</button>
+    <button id="unpauseButton" onclick="unpause()">Unpause Subscription</button>
   </div>
 
   <div class="subscription-message" id="subscriptionMessage"></div>
@@ -353,6 +355,19 @@
       messageElement.textContent = `You have ${selectedType} subscribed your Essentials Express cart successfully till ${selectedDate} ${selectedMonth} ${selectedYear}.`;
     }
 
+    function pause() {
+      document.getElementById('pauseButton').classList.add('active');
+      document.getElementById('unpauseButton').classList.remove('active');
+      const messageElement = document.getElementById('subscriptionMessage');
+      messageElement.textContent = 'Recommendations paused.';
+    }
+
+    function unpause() {
+      document.getElementById('unpauseButton').classList.add('active');
+      document.getElementById('pauseButton').classList.remove('active');
+      const messageElement = document.getElementById('subscriptionMessage');
+      messageElement.textContent = 'Recommendations resumed.';
+    }
     // Populate item select options initially
     populateItemSelect();
   </script>
