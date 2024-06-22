@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Recommendation Engine</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo {
+      width: 50px;
+      height: auto;
+      margin-right: 10px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .recommendations {
+      margin-top: 20px;
+    }
+
+    .item {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .item img {
+      width: 80px;
+      height: 80px;
+      margin-right: 10px;
+      border-radius: 4px;
+    }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-details h3 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+    }
+
+    .item-details p {
+      margin: 0;
+      color: #666;
+    }
+
+    .subscribe-button {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .subscribe-button button {
+      background-color: #28a745;
+    }
+
+    .subscribe-button button:hover {
+      background-color: #218838;
+    }
+
+    .subscription-message {
+      text-align: center;
+      margin-top: 10px;
+      color: #28a745;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>
+      <img src="logo.png" alt="Logo" class="logo">
+      Subscribe Essentials Express
+      <img src="logo.png" alt="Logo" class="logo">
+    </h2>
+    <label for="customerId">Enter Customer ID:</label>
+    <input type="text" id="customerId" placeholder="Customer ID">
+    <label for="itemSelect">Select Items:</label>
+    <select id="itemSelect" multiple>
+      <!-- Options will be added dynamically -->
+    </select>
+    <button onclick="recommend()">Get Recommendations</button>
+
+    <div class="recommendations" id="recommendedItems">
+      <!-- Recommendations will be added dynamically here -->
+    </div>
+
+    <div class="subscription-options">
+
+      <label for="subscribeMonth">Select Type of Subscription:</label>
+      <select id="subscribeType">
+        <option value="Yearly">Yearly</option>
+        <option value="Monthly">Monthly</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Daily">Daily</option>
+      </select>
+
+      <h4>Select Last Date of your subscription:</h4>
+      <table>
+        <tr>
+          <td>
+            <label for="subscribeDate">Date:</label>
+          </td>
+          <td>
+            <label for="subscribeMonth">Month:</label>
+          </td>
+          <td>
+            <label for="subscribeDate">Year:</label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="number" id="subscribeDate" min="1" max="31" placeholder="Date">
+          </td>
+          <td>
+            <select id="subscribeMonth">
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
+          </td>
+          <td>
+            <input type="number" id="subscribeYear" min="2024" max="2034" placeholder="Date">
+          </td>
+        </tr>
+    </div>
+    </table>
+  </div>
+
+  <div class="subscribe-button">
+    <button onclick="subscribe()">Subscribe to Essentials Cart</button>
+  </div>
+
+  <div class="subscription-message" id="subscriptionMessage"></div>
+  </div>
+
+  <input type="text" id="datepicker" />
+  <div id="displayDate"></div>
+
+  <script>
+    // JavaScript recommendation engine functions go here
+    // Example functions provided earlier in this conversation
+    function getAllUniqueItems(orders) {
+      let items = new Set();
+      orders.forEach(order => {
+        order.items.forEach(item => {
+          items.add(item);
+        });
+      });
+      return Array.from(items);
+    }
+
+    function createMatrix(orders, customers, items) {
+      let matrix = [];
+      customers.forEach(customer => {
+        let row = new Array(items.length).fill(0);
+        orders.forEach((order, index) => {
+          if (order.customerId === customer) {
+            order.items.forEach(item => {
+              let colIndex = items.indexOf(item);
+              if (colIndex !== -1) {
+                row[colIndex] += 1;
+              }
+            });
+          }
+        });
+        matrix.push(row);
+      });
+      return matrix;
+    }
+
+    function recommendItems(customerId, orders, selectedItems) {
+      let customerOrders = orders.filter(order => order.customerId === customerId);
+      let itemFrequency = {};
+      customerOrders.forEach(order => {
+        order.items.forEach(item => {
+          if (itemFrequency[item]) {
+            itemFrequency[item] += 1;
+          } else {
+            itemFrequency[item] = 1;
+          }
+        });
+      });
+
+      // Filter recommendations based on selected items
+      let sortedItems = Object.keys(itemFrequency)
+        .filter(item => customerOrders.some(order => order.items.includes(item)))
+        .sort((a, b) => itemFrequency[b] - itemFrequency[a]);
+
+      if (selectedItems && selectedItems.length > 0) {
+        sortedItems = sortedItems.filter(item => selectedItems.includes(item));
+      }
+
+      // Sample mapping of items to images (replace with actual URLs or logic)
+      const itemImages = {
+        'Aashirvaad Superior MP Atta 10kg Pack': 'atta.jpg',
+        'Nestle Cerelac Mixed Fruit Cereal 300 g': 'cerelac.jpg',
+        'Pedigree Premium Chicken 1 kg': 'pedigree.jpg',
+        'Colgate Toothpaste 240 g': 'toothpaste.jpg'
+        // Add more items and respective image filenames as needed
+      };
+
+      let recommendedItems = sortedItems.map(item => ({
+        item,
+        frequency: itemFrequency[item],
+        image: itemImages[item]
+      }));
+
+      return recommendedItems;
+    }
+
+    // Sample order data (replace with actual data)
+    const orders = [
+      {
+        customerId: 'Kiru', items: ['Aashirvaad Superior MP Atta 10kg Pack',
+          'Aashirvaad Superior MP Atta 10kg Pack',
+          'Aashirvaad Superior MP Atta 10kg Pack',
+          'Nestle Cerelac Mixed Fruit Cereal 300 g',
+          'Colgate Toothpaste 240 g']
+      },
+      {
+        customerId: 'Angesh', items: ['Nestle Cerelac Mixed Fruit Cereal 300 g',
+          'Nestle Cerelac Mixed Fruit Cereal 300 g',
+          'Pedigree Premium Chicken 1 kg',
+          'Pedigree Premium Chicken 1 kg',
+          'Colgate Toothpaste 240 g']
+      },
+      {
+        customerId: 'Dipika', items: ['Pedigree Premium Chicken 1 kg',
+          'Pedigree Premium Chicken 1 kg',
+          'Colgate Toothpaste 240 g']
+      }
+
+      // Add more order data as needed
+    ];
+
+    function populateItemSelect() {
+      const customerId = document.getElementById('customerId').value.trim();
+      const uniqueItems = getAllUniqueItems(orders);
+      const selectElement = document.getElementById('itemSelect');
+      selectElement.innerHTML = '';
+
+      uniqueItems.forEach(item => {
+        if (orders.some(order => order.customerId === customerId && order.items.includes(item))) {
+          let option = document.createElement('option');
+          option.value = item;
+          option.textContent = item;
+          selectElement.appendChild(option);
+        }
+      });
+    }
+
+    function recommend() {
+      const customerId = document.getElementById('customerId').value.trim();
+      const selectedItems = Array.from(document.getElementById('itemSelect').selectedOptions).map(option => option.value);
+      const recommendations = recommendItems(customerId, orders, selectedItems);
+      const recommendationsContainer = document.getElementById('recommendedItems');
+      recommendationsContainer.innerHTML = '';
+      recommendations.forEach(item => {
+        let itemElement = document.createElement('div');
+        itemElement.classList.add('item');
+        itemElement.innerHTML = `
+          <img src="${item.image}" alt="${item.item}">
+          <div class="item-details">
+            <h3>${item.item}</h3>
+            <p>Recommended as bought ${item.frequency} times in past</p>
+          </div>
+        `;
+        recommendationsContainer.appendChild(itemElement);
+        populateItemSelect();
+      });
+    }
+
+    function subscribe() {
+      const customerId = document.getElementById('customerId').value.trim();
+      const selectedItemId = document.getElementById('itemSelect').value;
+      const selectedType = document.getElementById('subscribeType').value;
+      const selectedYear = document.getElementById('subscribeYear').value;
+      const selectedMonth = document.getElementById('subscribeMonth').value;
+      const selectedDate = document.getElementById('subscribeDate').value;
+
+      // Validate selected date (optional)
+      if (!selectedDate || selectedDate < 1 || selectedDate > 31 || !selectedYear || selectedYear < 2024 || selectedYear > 2034) {
+        alert('Please select a valid date.');
+        return;
+      }
+
+      const messageElement = document.getElementById('subscriptionMessage');
+      messageElement.textContent = `You have ${selectedType} subscribed your Essentials Express cart successfully till ${selectedDate} ${selectedMonth} ${selectedYear}.`;
+    }
+
+    // Populate item select options initially
+    populateItemSelect();
+  </script>
+</body>
+
+</html>
